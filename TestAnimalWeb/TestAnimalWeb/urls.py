@@ -23,7 +23,8 @@ urlpatterns = [
     path('auth/registration/', include('rest_auth.registration.urls')),
     path('accounts/', include('allauth.urls')),
     path('auth/social/', include('rest_framework_social_oauth2.urls')),
-    path('', include("manageImg.urls")),
-    path('account/',include("user.urls"))
+    # path('', include("manageImg.urls")),
+    path('account/',include("user.urls")),
+    path('', include('blogPost.urls'))
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
