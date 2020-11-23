@@ -49,7 +49,7 @@ class CommentsWithVotesSerializers(serializers.ModelSerializer): # cooperate wit
     votes = LDLCommentSerializers(many=True)
     class Meta:
         model = Comment
-        fields = ('id', 'user','content', 'like', 'votes')
+        fields = ('id', 'user', 'article', 'content', 'like', 'votes', 'created_at', 'updated_at')
         read_only_fields = ('created_at', 'updated_at')
 
 class VotesWithArticleSerializer (serializers.ModelSerializer): 
@@ -61,42 +61,39 @@ class VotesWithArticleSerializer (serializers.ModelSerializer):
 class GetDetailArticleSerializer (serializers.ModelSerializer): 
     id = serializers.IntegerField(source='pk', read_only=True)
     user = UserSerializer(read_only=True)
-    comments = CommentsWithVotesSerializers(many=True)
     votes = VotesWithArticleSerializer(many=True)
     class Meta:
         model = Article
         fields = ('id', 'user', 'title', 'content', 'typeClass', 'dangerous', 'underwater',
                   'terrestrial', 'pets', 'wild', 'rare', 'view','like','comment', 'created_at', 'updated_at',
-                  'comments','votes')
+                  'votes')
         read_only_fields = ('created_at', 'updated_at')
 
 ###############################################################################################
 
 #################### Get user's articles and user's information  ########################
 
-class GetArticleSerializer(serializers.ModelSerializer):  # kết hợp với UserArticleSerializers để lấy các bài đăng của user
-                                                        # không dùng để đăng bài 
+class GetAllArticleSerializer(serializers.ModelSerializer):  
     id = serializers.IntegerField(source='pk', read_only=True)
     class Meta:
         model = Article
-        fields = ('id', 'title', 'content', 'typeClass', 'dangerous', 'underwater',
-                  'terrestrial', 'pets', ' wild', 'rare', ' view', 'created_at', 'updated_at','like')
+        fields = '__all__'
         read_only_fields = ('created_at', 'updated_at')
 
 
 class UserArticleSerializers(serializers.ModelSerializer): 
     id = serializers.IntegerField(source='pk', read_only=True) 
-    articles = GetArticleSerializer(many=True)
+    # articles = GetArticleSerializer(many=True)
     class Meta:
         model = User
-        fields = ('id','first_name', 'last_name', 'username', 'email', 'avatar', 'posts', 'articles')
+        fields = ('id','first_name', 'last_name', 'username', 'email', 'avatar', 'posts')
 
 
 ######################## Get Class's Article #######################
 
 class AnimalArticleSerializers(serializers.ModelSerializer): 
     id = serializers.IntegerField(source='pk', read_only=True)
-    articles = GetArticleSerializer(many=True)
+    articles = GetAllArticleSerializer(many=True)
     class Meta:
         model = ClassAnimal
         fields = ('id','name','articles') 

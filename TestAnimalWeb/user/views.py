@@ -17,24 +17,21 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
 class MyProfile(APIView):
-
     permission_classes = [IsAuthenticated]
-
     @csrf_exempt
     def get(seft, request, *args, **kwargs):    # lấy thông tin cá nhân ( first name, last name, email, phone)
         print(request.user.id)
         user = get_object_or_404(User, pk = request.user.id)
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
-
     @csrf_exempt
     def put(seft, request, *args, **kwargs):
         profile = get_object_or_404(User, pk = request.user.id)
-        data = request.data.get('userprofile')
+        data = request.data.get('profileUpdate')
         serializer = UserSerializer(instance=profile, data=data, partial=True)
         if serializer.is_valid(raise_exception=True):
             profile_saved = serializer.save()
-        return Response({"success": "Success", "data" : serializer.data})
+        return Response(serializer.data)
 
 
 
@@ -49,14 +46,14 @@ class AvatarUpdateView(APIView):
         serializer = AvatarSerializer(instance=userObj, data=data, partial=True)
         if serializer.is_valid(raise_exception=True):
             profile_saved = serializer.save()
-        return Response({"success": "Success", "data" : serializer.data})
+        return Response(serializer.data)
 
 
-class ProfileUpdateDeleteAPIView(viewsets.GenericViewSet, RetrieveUpdateDestroyAPIView): 
-    permission_classes = (IsAuthenticated,)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+# class ProfileUpdateDeleteAPIView(viewsets.GenericViewSet, RetrieveUpdateDestroyAPIView): 
+#     permission_classes = (IsAuthenticated,)
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
 
-    def get_queryset(self): 
-        query = User.objects.filter(pk = self.request.user.id)
-        return query
+#     def get_queryset(self): 
+#         query = User.objects.filter(pk = self.request.user.id)
+#         return query
