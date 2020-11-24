@@ -23,10 +23,11 @@ from django.http import QueryDict
 
 from django.http import Http404
 from rest_framework.views import APIView
-
+from rest_framework.permissions import IsAuthenticated, AllowAny
 # Create your views here.
 class PhotoUploadView(APIView): # upload ảnh bài đăng 
     parser_classes = (MultiPartParser, FormParser)
+    permission_classes = (AllowAny,)
     def post(self, request, *args, **kwargs):
         file_serializer = PhotoSerializer(data= request.data)
         if file_serializer.is_valid():

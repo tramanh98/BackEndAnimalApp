@@ -8,10 +8,10 @@ from django.contrib.auth.decorators import login_required
 from user.models import User
 from .models import Article, Comment, ClassAnimal, VoteArticle, LikeDislikeComment, UserFollowAnimal
 from .serializers import (ArticleSerializer , UserArticleSerializers, UserFollowAnimalSerializers,
-                            AnimalArticleSerializers, TagAnimalFollowSerializers,
+                            AnimalArticleSerializers, TagAnimalFollowSerializers, CommentsWithVotesSerializers,
                             GetDetailArticleSerializer, ExpressCommentSerializers, 
-                            VoteArticleSerializers, CommentSerializers)
-from user.serializers import UserSerializer, AvatarSerializer
+                            VoteArticleSerializers, CommentSerializers, GetAllArticleSerializer)
+from user.serializers import UserSerializer
 from rest_framework import viewsets
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -50,32 +50,51 @@ class ArticleDelete(generics.DestroyAPIView): #Xóa bài bài đăng api/motels/
         query = Article.objects.filter(user=self.request.user)
         return query
 
+############ fix here, sử dụng tên id ng dùng để lấy thông tin user 
+# class GetAllPost(APIView): # lấy tất cả thông tin user và các bài post của user đó
+#     queryset = User.objects.all()
+#     serializer_class = UserArticleSerializers
+#     permission_classes = [IsAuthenticated]
+#     @csrf_exempt
+#     def get(seft, request, *args, **kwargs):
+#         print(request.user.id)
+#         user = get_object_or_404(User, pk = request.user.id)
+#         serializer = UserArticleSerializers(user)
+#         return Response({"profile": serializer.data})
 
-class GetAllPost(APIView): # lấy tất cả thông tin user và các bài post của user đó
+class GetInforOtherUser(generics.RetrieveAPIView): # lấy tất cả thông tin user của user đó api/user/<id>
+    permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserArticleSerializers
-    permission_classes = [IsAuthenticated]
-    @csrf_exempt
-    def get(seft, request, *args, **kwargs):
-        print(request.user.id)
-        user = get_object_or_404(User, pk = request.user.id)
-        serializer = UserArticleSerializers(user)
-        return Response({"profile": serializer.data})
+
+class GetUserAllArticle(generics.ListAPIView):  # lấy tất cả bài báo của một user nào đó 
+    serializer_class = GetAllArticleSerializer
+    permission_classes = (AllowAny,)
+    def get_queryset(self):
+        queryset = Article.objects.all()
+        idUser = self.request.query_params.get('idUser')
+        queryset = queryset.filter(user = int(idUser))
+        return queryset
 
 
-class ArticleDetail(generics.RetrieveAPIView): #Get bài đăng api/acticle/<id>
+class ArticleDetail(generics.RetrieveAPIView): #Get bài đăng để xem api/acticle/<id>
     permission_classes = (AllowAny,)
     queryset = Article.objects.all()
     serializer_class = GetDetailArticleSerializer
 
-class OtherUserInfor(generics.RetrieveAPIView): #Get thông tin của user khác api/user/<id>
+class GetArticle(generics.RetrieveAPIView): #Get bài đăng để chỉnh sửa api/acticle/<id>
+    permission_classes = (AllowAny,)
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+class OtherUserInfor(generics.RetrieveAPIView): #Get thông tin của user khác api/user/<id> , id là id của user 
     permission_classes = (AllowAny,)
     queryset = Article.objects.all()
     serializer_class = UserArticleSerializers
 
 ######################### WRITE, UPDATE, DELETE COMMENT #############################
 class WriteComment(generics.CreateAPIView): # Viết bình luận
-    queryset = Article.objects.all()
+    queryset = Comment.objects.all()
     serializer_class = CommentSerializers
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     def get_queryset(self):
@@ -111,6 +130,16 @@ class DeleteComment(generics.DestroyAPIView): #Xóa bình luận api/comment/del
         query = Comment.objects.filter(user=self.request.user)
         return query
 
+class GetListComment(generics.ListAPIView):  # lấy list comment của 1 bài báo 
+    serializer_class = CommentsWithVotesSerializers
+    permission_classes = (AllowAny,)
+    def get_queryset(self):
+        queryset = Comment.objects.all()
+        idPost = self.request.query_params.get('idPost')
+        queryset = queryset.filter(article = int(idPost))
+        return queryset
+
+
 ########################## LIST ARTICLES #########################################
 ##################### lọc các bài viết theo lớp ############
 
@@ -119,7 +148,7 @@ class FilterArticleClassAnimalView(generics.ListAPIView):  # có 1 cách khác, 
     permission_classes = (AllowAny,)
     def get_queryset(self):
         queryset = Article.objects.all()
-        idClass = self.request.query_params.get('idclass')
+        idClass = self.request.query_params.get('idClass')
         queryset = queryset.filter(typeClass=int(idClass))
         return queryset
 
@@ -192,7 +221,7 @@ class ArticleListTrend(generics.ListAPIView): # lấy các bài đăng có nhi�
 
 ########################## VOTE ARTICLE AND EXPRESS LIKE OR DISLIKE COMMENT ############################
 
-class VoteArticle(generics.CreateAPIView):
+class VoteArticleView(generics.CreateAPIView):
     queryset = VoteArticle.objects.all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = VoteArticleSerializers
@@ -210,8 +239,10 @@ class VoteArticle(generics.CreateAPIView):
 class DeleteVoteArticle(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = VoteArticleSerializers
+    
     def get_queryset(self): 
         # giảm 1 lượt vote trên 1 bài viết 
+        print(int(self.kwargs.get('pk')))
         vote = VoteArticle.objects.get(id = int(self.kwargs.get('pk')))
         articlecm = vote.article
         articlecm.like = articlecm.like - 1
@@ -241,12 +272,20 @@ class DeleteVoteComment(generics.DestroyAPIView): #Cập nhật bài đăng api/
     def get_queryset(self): #Authentication user để update
         # giảm 1 lượt vote trên 1 comment 
         votecmt = LikeDislikeComment.objects.get(id = int(self.kwargs.get('pk')))
-        cmt = vote.comment
+        cmt = votecmt.comment
         cmt.like = cmt.like - 1
         cmt.save()
         query = LikeDislikeComment.objects.filter(user=self.request.user)
         return query
 
+##################################################################################
+class UserUnfollowAnimal (generics.DestroyAPIView): # User unfollow 1 animal's class
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = TagAnimalFollowSerializers
+    queryset = UserFollowAnimal.objects.all()
+    # def get_queryset(self): 
+    #     query = UserFollowAnimal.objects.filter(user=self.request.user)
+    #     return query
 ######################## FOLLOW AND UNFOLLOW A CLASS ###################################
 class GetAllTagFollow (generics.RetrieveAPIView):  # lấy các tag animal mà user follow 
     permission_classes = (AllowAny,) 
@@ -265,10 +304,5 @@ class UserFollowAnimal(generics.CreateAPIView):  # User follow 1 animal's class
         print(self.request)
         serializer.save(user=self.request.user)
 
-class UserUnfollowAnimal (generics.DestroyAPIView): # User unfollow 1 animal's class
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    serializer_class = TagAnimalFollowSerializers
-    def get_queryset(self): 
-        query = UserFollowAnimal.objects.filter(user=self.request.user)
-        return query
+
     

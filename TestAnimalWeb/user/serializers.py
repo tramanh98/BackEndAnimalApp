@@ -13,18 +13,16 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):  # dùng để get, update profile 
     id = serializers.IntegerField(source='pk', read_only=True)
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'username', 'phone','email', 'avatar', 'posts')
-        read_only_fields = ('email', 'posts' )
+        fields = ('id', 'first_name', 'last_name', 'username', 'phone', 'email', 'avatar', 'posts')
+        read_only_fields = ('username', 'email', 'avatar', 'posts' )
 
     def update(self, instance, validated_data):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.phone = validated_data.get('phone', instance.phone)
-        instance.phone = validated_data.get('avatar', instance.avatar)
-
         instance.save()
         return instance
