@@ -21,11 +21,13 @@ from rest_framework import serializers
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
 
-class CreateArticleViews(generics.CreateAPIView): #Tạo bài đăng api/motels/create/
+class CreateArticleViews(generics.CreateAPIView): #Tạo bài đăng api/create/article/
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     def get_queryset(self): #Authentication user để tạo bài đăng
+        usr = User.objects.get(pk = self.request.user)
+        usr.posts = usr.posts + 1
         query = Article.objects.filter(user=self.request.user)
         return query
     def perform_create(self, serializer):
@@ -77,10 +79,17 @@ class GetUserAllArticle(generics.ListAPIView):  # lấy tất cả bài báo c�
         return queryset
 
 
-class ArticleDetail(generics.RetrieveAPIView): #Get bài đăng để xem api/acticle/<id>
+class ArticleDetail(generics.RetrieveAPIView): #Get bài đăng để xem api/get/article/<pk>/
     permission_classes = (AllowAny,)
     queryset = Article.objects.all()
     serializer_class = GetDetailArticleSerializer
+    def retrieve(self, request, *args, **kwargs):
+        artc = Article.objects.get(id = int(self.kwargs.get('pk')))
+        artc.view = artc.view + 1
+        artc.save()
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 class GetArticle(generics.RetrieveAPIView): #Get bài đăng để chỉnh sửa api/acticle/<id>
     permission_classes = (AllowAny,)
@@ -101,7 +110,6 @@ class WriteComment(generics.CreateAPIView): # Viết bình luận
         query = Comment.objects.filter(user=self.request.user)
         return query
     def perform_create(self, serializer):
-        print(self.request.data["article"])
         # tăng 1 bình luận trên 1 bài viết
         articlecm = Article.objects.get(id = int(self.request.data["article"]))
         articlecm.comment = articlecm.comment + 1
