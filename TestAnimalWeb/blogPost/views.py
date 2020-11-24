@@ -20,6 +20,10 @@ from rest_framework.decorators import api_view
 from rest_framework import serializers
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
+from rest_framework.pagination import PageNumberPagination
+
+class ArticlePagination(PageNumberPagination): #Sắp xếp bài đăng 1 page 10 trang
+    page_size = 10
 
 class CreateArticleViews(generics.CreateAPIView): #Tạo bài đăng api/create/article/
     queryset = Article.objects.all()
@@ -70,6 +74,7 @@ class GetInforOtherUser(generics.RetrieveAPIView): # lấy tất cả thông tin
     serializer_class = UserArticleSerializers
 
 class GetUserAllArticle(generics.ListAPIView):  # lấy tất cả bài báo của một user nào đó 
+    pagination_class = ArticlePagination
     serializer_class = GetAllArticleSerializer
     permission_classes = (AllowAny,)
     def get_queryset(self):
@@ -139,6 +144,7 @@ class DeleteComment(generics.DestroyAPIView): #Xóa bình luận api/comment/del
         return query
 
 class GetListComment(generics.ListAPIView):  # lấy list comment của 1 bài báo 
+    pagination_class = ArticlePagination
     serializer_class = CommentsWithVotesSerializers
     permission_classes = (AllowAny,)
     def get_queryset(self):
@@ -152,6 +158,7 @@ class GetListComment(generics.ListAPIView):  # lấy list comment của 1 bài b
 ##################### lọc các bài viết theo lớp ############
 
 class FilterArticleClassAnimalView(generics.ListAPIView):  # có 1 cách khác, dùng AnimalArticleSerializers
+    pagination_class = ArticlePagination
     serializer_class = ArticleSerializer
     permission_classes = (AllowAny,)
     def get_queryset(self):
@@ -161,6 +168,7 @@ class FilterArticleClassAnimalView(generics.ListAPIView):  # có 1 cách khác, 
         return queryset
 
 class FilterArticles (generics.ListAPIView): # lọc theo các điều kiện true fales 
+    pagination_class = ArticlePagination
     serializer_class = ArticleSerializer
     permission_classes = (AllowAny,)
     def get_queryset(self):
@@ -183,6 +191,7 @@ class FilterArticles (generics.ListAPIView): # lọc theo các điều kiện tr
 
 ######### fixing here 
 class FilterArticleFollow (generics.ListAPIView): # lọc các bài viết thuộc lớp đv mà user theo dõi 
+    pagination_class = ArticlePagination
     serializer_class = ArticleSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     def get_queryset(self):
@@ -206,6 +215,7 @@ class FilterArticleFollow (generics.ListAPIView): # lọc các bài viết thu�
 
 
 class ArticleListLatest(generics.ListAPIView): # lấy các bài đăng mới nhất
+    pagination_class = ArticlePagination
     serializer_class = ArticleSerializer
     permission_classes = (AllowAny,)
     def get_queryset(self):
@@ -213,6 +223,7 @@ class ArticleListLatest(generics.ListAPIView): # lấy các bài đăng mới nh
         return queryset
 
 class ArticleListPopular(generics.ListAPIView): # lấy các bài đăng có nhiều lượt view nhất
+    pagination_class = ArticlePagination
     serializer_class = ArticleSerializer
     permission_classes = (AllowAny,)
     def get_queryset(self):
@@ -220,6 +231,7 @@ class ArticleListPopular(generics.ListAPIView): # lấy các bài đăng có nhi
         return queryset
 
 class ArticleListTrend(generics.ListAPIView): # lấy các bài đăng có nhiều lượt yêu thích nhất
+    pagination_class = ArticlePagination
     serializer_class = ArticleSerializer
     permission_classes = (AllowAny,)
     def get_queryset(self):
