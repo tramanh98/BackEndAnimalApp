@@ -32,7 +32,7 @@ urlpatterns = [
     path('api/delete/vote/article/<pk>/', DeleteVoteArticle.as_view()),  # ==> used
 
     path('api/latest/article/', ArticleListLatest.as_view()), # Get list latest
-    path('api/popular/article/', ArticleListPopular.as_view()),
+    path('api/favorite/article/', ArticleListPopular.as_view()),
     path('api/trending/article/', ArticleListTrend.as_view()),
 
     path('api/follow/animal/', UserFollowAnimal.as_view()),  # used
