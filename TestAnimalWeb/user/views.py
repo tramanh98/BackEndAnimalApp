@@ -4,17 +4,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
 from .models import User
-from .serializers import UserSerializer, AvatarSerializer
-from rest_framework import viewsets
+from .serializers import UserSerializer, AvatarSerializer, CustomRegisterSerializer
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView, )
-from rest_framework.decorators import api_view
-from rest_framework import serializers
-
-from rest_framework.authtoken.models import Token
 
 class MyProfile(APIView):
     permission_classes = [IsAuthenticated]
