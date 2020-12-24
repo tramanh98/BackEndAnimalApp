@@ -12,6 +12,5 @@ app_name = 'user'
 urlpatterns = [
     path('myprofile/', MyProfile.as_view()), 
     path('avatar/update/', AvatarUpdateView.as_view()),
-    # path('registration/', CustomRegisterView.as_view()),
 
 ]
