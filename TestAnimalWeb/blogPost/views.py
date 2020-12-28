@@ -157,7 +157,7 @@ class GetListComment(generics.ListAPIView):  # lấy list comment của 1 bài b
 ########################## LIST ARTICLES #########################################
 ##################### lọc các bài viết theo lớp ############
 
-class FilterArticleClassAnimalView(generics.ListAPIView):  # có 1 cách khác, dùng AnimalArticleSerializers
+class FilterArticleClassAnimalView(generics.ListAPIView):  
     pagination_class = ArticlePagination
     serializer_class = ArticleSerializer
     permission_classes = (AllowAny,)
