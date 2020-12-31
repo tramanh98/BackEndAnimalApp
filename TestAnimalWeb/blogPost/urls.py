@@ -14,6 +14,7 @@ urlpatterns = [
     # có 2 loại filter, 1 loại là filter theo ID loài, loại filter thứ 2 là lọc theo các điều kiện (vd: rare, wild,...)
     path('api/filter/animalclass/article/', FilterArticleClassAnimalView.as_view()), # lọc theo id loài 
     path('api/filter/article/', FilterArticles.as_view()), # lọc theo điều kiện 
+    path('api/filter/article/following/tag', FilterArticleFollowingTag.as_view()), # lọc các bài viết của các loài đang follow 
 
     path('api/get/article/<pk>/', ArticleDetail.as_view()), # Lấy chi tiết bài báo cùng với bình luận, tên ng đăng, ==>used 
     path('api/get/your/article/<pk>/', GetArticle.as_view()), # lấy dữ liệu bài viết để chỉnh sửa  ==> used
@@ -32,10 +33,10 @@ urlpatterns = [
     path('api/delete/vote/article/<pk>/', DeleteVoteArticle.as_view()),  # ==> used
 
     path('api/latest/article/', ArticleListLatest.as_view()), # Get list latest
-    path('api/favorite/article/', ArticleListPopular.as_view()),
+    path('api/favorite/article/', ArticleListFavorite.as_view()),
     path('api/trending/article/', ArticleListTrend.as_view()),
 
-    path('api/follow/animal/', UserFollowAnimal.as_view()),  # used
+    path('api/follow/animal/', UserFollowingAnimal.as_view()),  # used
     path('api/unfollow/animal/<pk>/', UserUnfollowAnimal.as_view()), # pk là id của user  ==> used
     path('api/get/followingtag/<pk>/', GetAllTagFollow.as_view()),  # get all tag that user follow ==> used
                                                                     #pk là id của user  
