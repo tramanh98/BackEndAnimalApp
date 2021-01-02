@@ -148,7 +148,7 @@ class GetListComment(generics.ListAPIView):  # lấy list comment của 1 bài b
     def get_queryset(self):
         queryset = Comment.objects.all()
         idPost = self.request.query_params.get('idPost')
-        queryset = queryset.filter(article = int(idPost))
+        queryset = queryset.filter(article = int(idPost)).order_by('-created_at')
         return queryset
 
 
@@ -162,7 +162,7 @@ class FilterArticleClassAnimalView(generics.ListAPIView):
     def get_queryset(self):
         queryset = Article.objects.all()
         idClass = self.request.query_params.get('idClass')
-        queryset = queryset.filter(typeClass=int(idClass))
+        queryset = queryset.filter(typeClass=int(idClass)).order_by('-created_at')
         return queryset
 
 class FilterArticles (generics.ListAPIView): # lọc theo các điều kiện true fales 
@@ -173,17 +173,17 @@ class FilterArticles (generics.ListAPIView): # lọc theo các điều kiện tr
         queryset = Article.objects.all()
         option = self.request.query_params.get('option')
         if option == 'danger':
-            queryset = queryset.filter(dangerous = True)
+            queryset = queryset.filter(dangerous = True).order_by('-created_at')
         if option == 'underwater':
-            queryset = queryset.filter(underwater = True)
+            queryset = queryset.filter(underwater = True).order_by('-created_at')
         if option == 'terrestrial':
-            queryset = queryset.filter(terrestrial = True)
+            queryset = queryset.filter(terrestrial = True).order_by('-created_at')
         if option == 'pets':
-            queryset = queryset.filter(pets = True)
+            queryset = queryset.filter(pets = True).order_by('-created_at')
         if option == 'wild':
-            queryset = queryset.filter(wild = True)
+            queryset = queryset.filter(wild = True).order_by('-created_at')
         if option == 'rare':
-            queryset = queryset.filter(rare = True)
+            queryset = queryset.filter(rare = True).order_by('-created_at')
         return queryset
 
 
